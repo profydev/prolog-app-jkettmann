@@ -24,6 +24,7 @@ describe("Issue List", () => {
     // wait for request to resolve
     cy.wait("@getProjects");
     cy.wait("@getIssuesPage1");
+    cy.wait(500);
 
     // set button aliases
     cy.get("button").contains("Previous").as("prev-button");
@@ -81,6 +82,7 @@ describe("Issue List", () => {
 
       cy.reload();
       cy.wait(["@getProjects", "@getIssuesPage2"]);
+      cy.wait(500);
       cy.contains("Page 2 of 3");
     });
   });
