@@ -12,12 +12,13 @@ import { theme } from "@styles/theme";
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const AnyComponent = Component as any;
   return (
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <NavigationProvider>
           <GlobalStyle />
-          <Component {...pageProps} />
+          <AnyComponent {...pageProps} />
         </NavigationProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
