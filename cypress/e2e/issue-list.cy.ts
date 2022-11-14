@@ -10,23 +10,25 @@ describe("Issue List", () => {
     }).as("getProjects");
     cy.intercept("GET", "https://prolog-api.profy.dev/issue?page=1", {
       fixture: "issues-page-1.json",
-    }).as("getIssues");
+    }).as("getIssuesPage1");
     cy.intercept("GET", "https://prolog-api.profy.dev/issue?page=2", {
       fixture: "issues-page-2.json",
-    });
+    }).as("getIssuesPage2");
     cy.intercept("GET", "https://prolog-api.profy.dev/issue?page=3", {
       fixture: "issues-page-3.json",
-    });
+    }).as("getIssuesPage3");
 
     // open issues page
     cy.visit(`http://localhost:3000/dashboard/issues`);
 
     // wait for request to resolve
     cy.wait("@getProjects");
-    cy.wait("@getIssues");
+    cy.wait("@getIssuesPage1");
+    // prevent the following lines to fail randomly
+    cy.wait(500);
 
     // set button aliases
-    cy.get("button", { timeout: 10000 }).contains("Previous").as("prev-button");
+    cy.get("button").contains("Previous").as("prev-button");
     cy.get("button").contains("Next").as("next-button");
   });
 
@@ -56,12 +58,14 @@ describe("Issue List", () => {
 
       // test navigation to second page
       cy.get("@next-button").click();
+      cy.wait("@getIssuesPage2");
       cy.get("@prev-button").should("not.have.attr", "disabled");
       cy.contains("Page 2 of 3");
       cy.get("tbody tr:first").contains(mockIssues2.items[0].message);
 
       // test navigation to third and last page
       cy.get("@next-button").click();
+      cy.wait("@getIssuesPage3");
       cy.get("@next-button").should("have.attr", "disabled");
       cy.contains("Page 3 of 3");
       cy.get("tbody tr:first").contains(mockIssues3.items[0].message);
@@ -78,6 +82,7 @@ describe("Issue List", () => {
       cy.contains("Page 2 of 3");
 
       cy.reload();
+      cy.wait(["@getProjects", "@getIssuesPage2"]);
       cy.contains("Page 2 of 3");
     });
   });
